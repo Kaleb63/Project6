@@ -143,31 +143,30 @@ public class List3<T> extends ListSecondary<T> {
              * Check for every node n in the doubly linked list of nodes, except
              * the one pointed to by $this.postFinish, n.next.previous = n
              */
-            assert (n.next != null) && (n.next.previous == n) : ""
-                    + "Violation of: [for every node n in the doubly linked"
-                    + " list of nodes, except the one pointed to by"
-                    + " $this.postFinish, n.next.previous = n]";
+            assert (n.next != null) && (n.next.previous == n)
+                    : "" + "Violation of: [for every node n in the doubly linked"
+                            + " list of nodes, except the one pointed to by"
+                            + " $this.postFinish, n.next.previous = n]";
             n = n.next;
             /*
              * Check for every node n in the doubly linked list of nodes, except
              * the one pointed to by $this.preStart, n.previous.next = n
              */
-            assert n.previous.next == n : ""
-                    + "Violation of: [for every node n in the doubly linked"
-                    + " list of nodes, except the one pointed to by"
-                    + " $this.preStart, n.previous.next = n]";
+            assert n.previous.next == n
+                    : "" + "Violation of: [for every node n in the doubly linked"
+                            + " list of nodes, except the one pointed to by"
+                            + " $this.preStart, n.previous.next = n]";
         }
         count++;
-        assert count == this.leftLength + this.rightLength + 2 : ""
-                + "Violation of: [$this.preStart points to the first node of"
-                + " a doubly linked list containing"
-                + " ($this.leftLength + $this.rightLength + 2) nodes]";
-        assert lastLeftFound : ""
-                + "Violation of: [$this.lastLeft points to the"
+        assert count == this.leftLength + this.rightLength + 2
+                : "" + "Violation of: [$this.preStart points to the first node of"
+                        + " a doubly linked list containing"
+                        + " ($this.leftLength + $this.rightLength + 2) nodes]";
+        assert lastLeftFound : "" + "Violation of: [$this.lastLeft points to the"
                 + " ($this.leftLength + 1)-th node in that doubly linked list]";
-        assert n == this.postFinish : ""
-                + "Violation of: [$this.postFinish points to the last"
-                + " node in that doubly linked list]";
+        assert n == this.postFinish
+                : "" + "Violation of: [$this.postFinish points to the last"
+                        + " node in that doubly linked list]";
 
         return true;
     }
@@ -178,6 +177,15 @@ public class List3<T> extends ListSecondary<T> {
     private void createNewRep() {
 
         // TODO - fill in body
+        this.preStart = new Node();
+        this.postFinish = new Node();
+
+        this.preStart.next = this.postFinish;
+        this.postFinish.previous = this.preStart;
+
+        this.lastLeft = this.preStart; //cursor
+        this.leftLength = 0;
+        this.rightLength = 0;
 
     }
 
@@ -187,7 +195,7 @@ public class List3<T> extends ListSecondary<T> {
     public List3() {
 
         // TODO - fill in body
-
+        this.createNewRep();
         assert this.conventionHolds();
     }
 
@@ -212,8 +220,8 @@ public class List3<T> extends ListSecondary<T> {
     public final void transferFrom(List<T> source) {
         assert source != null : "Violation of: source is not null";
         assert source != this : "Violation of: source is not this";
-        assert source instanceof List3<?> : ""
-                + "Violation of: source is of dynamic type List3<?>";
+        assert source instanceof List3<?>
+                : "" + "Violation of: source is of dynamic type List3<?>";
         /*
          * This cast cannot fail since the assert above would have stopped
          * execution in that case: source must be of dynamic type List3<?>, and
@@ -235,6 +243,15 @@ public class List3<T> extends ListSecondary<T> {
         assert x != null : "Violation of: x is not null";
 
         // TODO - fill in body
+        Node added = new Node();
+        added.data = x;
+
+        added.previous = this.lastLeft;
+        added.next = this.lastLeft.next;
+        added.next.previous = added;
+        this.lastLeft.next = added;
+
+        this.rightLength++;
 
         assert this.conventionHolds();
     }
@@ -244,10 +261,16 @@ public class List3<T> extends ListSecondary<T> {
         assert this.rightLength() > 0 : "Violation of: this.right /= <>";
 
         // TODO - fill in body
+        Node removed = this.lastLeft.next;
+
+        this.lastLeft.next = removed.next;
+        removed.next.previous = this.lastLeft;
+
+        this.rightLength--;
 
         assert this.conventionHolds();
         // Fix this line to return the result after checking the convention.
-        return null;
+        return removed.data;
     }
 
     @Override
@@ -255,6 +278,9 @@ public class List3<T> extends ListSecondary<T> {
         assert this.rightLength() > 0 : "Violation of: this.right /= <>";
 
         // TODO - fill in body
+        this.lastLeft = this.lastLeft.next;
+        this.leftLength++;
+        this.rightLength--;
 
         assert this.conventionHolds();
     }
@@ -263,6 +289,10 @@ public class List3<T> extends ListSecondary<T> {
     public final void moveToStart() {
 
         // TODO - fill in body
+        this.lastLeft = this.preStart;
+
+        this.rightLength = this.leftLength + this.rightLength;
+        this.leftLength = 0;
 
         assert this.conventionHolds();
     }
@@ -274,7 +304,7 @@ public class List3<T> extends ListSecondary<T> {
 
         assert this.conventionHolds();
         // Fix this line to return the result after checking the convention.
-        return 0;
+        return this.leftLength;
     }
 
     @Override
@@ -284,7 +314,7 @@ public class List3<T> extends ListSecondary<T> {
 
         assert this.conventionHolds();
         // Fix this line to return the result after checking the convention.
-        return 0;
+        return this.rightLength;
     }
 
     @Override
@@ -335,8 +365,7 @@ public class List3<T> extends ListSecondary<T> {
 
         @Override
         public void remove() {
-            throw new UnsupportedOperationException(
-                    "remove operation not supported");
+            throw new UnsupportedOperationException("remove operation not supported");
         }
 
     }
@@ -349,6 +378,10 @@ public class List3<T> extends ListSecondary<T> {
     public final void moveToFinish() {
 
         // TODO - fill in body
+        this.lastLeft = this.postFinish.previous;
+
+        this.leftLength = this.rightLength + this.leftLength;
+        this.rightLength = 0;
 
         assert this.conventionHolds();
     }
@@ -358,7 +391,9 @@ public class List3<T> extends ListSecondary<T> {
         assert this.leftLength() > 0 : "Violation of: this.left /= <>";
 
         // TODO - fill in body
-
+        this.lastLeft = this.lastLeft.previous;
+        this.rightLength++;
+        this.leftLength--;
         assert this.conventionHolds();
     }
 
